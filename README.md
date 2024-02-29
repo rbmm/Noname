@@ -74,11 +74,11 @@ _TEXT$asm ENDS
 
 the `_TEXT$asm` section name will be mapped to `.text$mn$asm`
 
-mandatory (!!)` add `/cbstring` and `/Oi` compiler options to x64.cpp
-the `/cbstring put string literals to section "near" code section
-our c/c++ code will be in .text$mn$cpp
-as result string will be located in .text$mn$cpp$s  
-/Oi allow use intrinsic functions, like strcmp, which we need
+mandatory (!) add `/cbstring` and `/Oi` compiler options to x64.cpp
+the `/cbstring` put string literals to section "near" code section
+our c/c++ code will be in `.text$mn$cpp`
+as result string will be located in `.text$mn$cpp$s`  
+`/Oi` allow use intrinsic functions, like strcmp, which we need
 
 add
 
@@ -89,7 +89,7 @@ add
 ```
 
 usually func declared with DECLSPEC_IMPORT macro
-when it expanded to `__declspec(dllimport)` - compiler will be generate indirect call [__imp_func]
+when it expanded to `__declspec(dllimport)` - compiler will be generate indirect `call [__imp_func]`
 but this is bad for shellcode , we need relative call func
 
 so we will be have next section layout:
