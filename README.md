@@ -11,25 +11,27 @@ we need enter to Heaven's Gate for this and execute here shellcode, which do tas
 we need several steps.
 
 1. write normal c++ code for solution.
-for concrete task we can do next:
-  a) create section
-  b) open target process
-  c) map section in target process
-  d) create new thread in target process with RtlExitUserThread entry point (yes!)
-  e) queue APC to this thread with start address at LdrQueryProcessModuleInformation (we need 3 params for this api)
-  f) wait thread exit
-  g) umap section from target process
-  h) close target process
-  i) map section in own process - if all ok - we got RTL_PROCESS_MODULES here
-  j) use RTL_PROCESS_MODULES data
-  k) unmap section
-  l) close section
+   for concrete task we can do next:
+  - a) create section
+  - b) open target process
+  - c) map section in target process
+  - d) create new thread in target process with RtlExitUserThread entry point (yes!)
+  - e) queue APC to this thread with start address at LdrQueryProcessModuleInformation (we need 3 params for this api)
+  - f) wait thread exit
+  - g) umap section from target process
+  - h) close target process
+  - i) map section in own process - if all ok - we got RTL_PROCESS_MODULES here
+  - j) use RTL_PROCESS_MODULES data
+  - k) unmap section
+  - l) close section
   
 the d/e steps require 64 bit code. Let's put them in a separate function (for greater convenience, I also included there c/f/g):
 
-NTSTATUS DoRemoteQuery(HANDLE hSection, HANDLE hProcess) - https://github.com/rbmm/Noname/blob/main/x64.cpp
+```cpp
+NTSTATUS DoRemoteQuery(HANDLE hSection, HANDLE hProcess);
+```
 
-place this code in separate file ( in my case x64.cpp )
+place this code in separate file ( in my case [x64.cpp](https://github.com/rbmm/Noname/blob/main/x64.cpp)  )
 
 after all work in x64 mode, let go next
 
@@ -87,7 +89,7 @@ add
 ```
 
 usually func declared with DECLSPEC_IMPORT macro
-when it expanded to __declspec(dllimport) - compiler will be generate indirect call [__imp_func]
+when it expanded to `__declspec(dllimport)` - compiler will be generate indirect call [__imp_func]
 but this is bad for shellcode , we need relative call func
 
 so we will be have next section layout:
@@ -117,14 +119,14 @@ ensure that after such transormations - all code still work ok
 #endif
 ```
 
-simply convert code to array of DQ xxxx lines ( look for https://github.com/rbmm/Noname/blob/main/util.cpp )
+simply convert code to array of DQ xxxx lines ( look for [util.cpp](https://github.com/rbmm/Noname/blob/main/util.cpp) )
 
-i save it as sc64.asm ( https://github.com/rbmm/Noname/blob/main/sc64.asm )
+i save it as [sc64.asm](https://github.com/rbmm/Noname/blob/main/sc64.asm)
 
 4. now we can switch to 32 bit build
 
 we need remove x64.cpp and code64.asm from compilation here
-and add code32.asm ( https://github.com/rbmm/Noname/blob/main/code32.asm ) for enter Heaven's Gate - here we include generated sc64.asm
+and add [code32.asm](https://github.com/rbmm/Noname/blob/main/code32.asm) for enter Heaven's Gate - here we include generated [sc64.asm](https://github.com/rbmm/Noname/blob/main/sc64.asm)
 
 we not need here `#define DECLSPEC_IMPORT` of course
 the direct call to DoRemoteQuery we replace to:
