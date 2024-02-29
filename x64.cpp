@@ -75,8 +75,6 @@ NTSTATUS NtGetProcedureAddress(PVOID ImageBase, PCSTR ProcedureName, _Out_ void*
 	return STATUS_PROCEDURE_NOT_FOUND;
 }
 
-EXTERN_C NTSTATUS NTAPI Xyz();
-
 NTSTATUS DoRemoteQuery(HANDLE hSection, HANDLE hProcess)
 {
 	CPP_FUNCTION;
